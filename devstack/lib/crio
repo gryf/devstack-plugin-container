@@ -57,6 +57,15 @@ function install_crio {
         # Installing podman and containerd will get us compatible versions of
         # cri-o and runc. And we need podman to manage container images anyway.
         apt_get install podman buildah cri-o-runc cri-o
+
+        # workaround on bug:
+        # https://bugs.launchpad.net/ubuntu/+source/libpod/+bug/2009708
+        # for removing not (yet) used images by podman - I don't like
+        # surprises with images disappearing without a trace, unless
+        # explicitly removed.
+        $SYSTEMCTL disable podman-auto-update.timer
+        $SYSTEMCTL stop podman-auto-update.timer
+        sudo systemctl restart podman
     elif is_fedora; then
         if [[ "$lsb_dist" = "centos" ]]; then
             sudo yum-config-manager \
